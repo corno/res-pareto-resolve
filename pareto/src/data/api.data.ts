@@ -7,6 +7,7 @@ const d = pd.d
 
 export const $: g_project.T.ModuleDefinition.api.root<pd.SourceLocation> = {
     'algorithms': d({
+        "sortTopologically": algorithm(sfunction("this", {}, "SortTopologically")),
         "unsafeResolveDictionary": algorithm(sfunction("this", {}, "UnsafeResolveDictionary")),
         "safeResolveDictionary": algorithm(sfunction("this", {}, "SafeResolveDictionary"), {}, dependent(null, {
         }, {

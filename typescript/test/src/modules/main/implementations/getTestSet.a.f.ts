@@ -15,10 +15,30 @@ import { A } from "../api.generated"
 
 export const $$: A.getTestSet = ($) => {
 
-    type Test = pt.Dictionary<pt.Array<string>>
+    type SortTest = pt.Dictionary<pt.Dictionary<null>>
 
 
-    function test(name: string, $: Test) {
+    function testSort(name: string, $: SortTest) {
+        pv.logDebugMessage(name)
+        g_pub.$r.sortTopologically()($, {
+            'map': ($) => $
+        }).__forEach(($) => {
+            pv.logDebugMessage($.key)
+        })
+    }
+
+    testSort("Reversed order", pd.d({
+        "A": pd.d({
+            "B": null
+        }),
+        "B": pd.d({}),
+    }))
+
+
+    type ResolveTest = pt.Dictionary<pt.Array<string>>
+
+
+    function testResolve(name: string, $: ResolveTest) {
         pv.logDebugMessage(name)
         g_pub.$r.safeResolveDictionary({
             'onError': ($) => {
@@ -34,19 +54,19 @@ export const $$: A.getTestSet = ($) => {
     }
 
 
-    test("non existing entry", pd.d({
+    testResolve("non existing entry", pd.d({
         "A": pd.a(["C"]),
         "B": pd.a([]),
     }))
-    test("valid", pd.d({
+    testResolve("valid", pd.d({
         "A": pd.a(["B"]),
         "B": pd.a([]),
     }))
-    test("circular reference", pd.d({
+    testResolve("circular reference", pd.d({
         "A": pd.a(["B"]),
         "B": pd.a(["A"]),
     }))
-    test("self reference", pd.d({
+    testResolve("self reference", pd.d({
         "A": pd.a(["A"]),
     }))
 

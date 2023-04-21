@@ -12,6 +12,13 @@ export namespace T {
     
     export type AnySibling<TType> = () => TType
     
+    export namespace Array {
+        
+        export type A<TType> = T.KeyValuePair<TType>
+    }
+    
+    export type Array<TType> = pt.Array<T.KeyValuePair<TType>>
+    
     export namespace Dictionary {
         
         export type D<TType> = TType
@@ -32,4 +39,11 @@ export namespace T {
         readonly 'key': string
         readonly 'value': TType
     }
+    
+    export namespace NullDictionary {
+        
+        export type D = null
+    }
+    
+    export type NullDictionary = pt.Dictionary<null>
 }

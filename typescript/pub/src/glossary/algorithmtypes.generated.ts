@@ -31,6 +31,13 @@ export namespace SYNC {
         
         
         export namespace F {
+            export type SortTopologically = <TType>($: T.Dictionary<TType>, $c: {
+                'map': ($: TType) => T.NullDictionary,
+            }) => T.Array<TType>
+        }
+        
+        
+        export namespace F {
             export type UnsafeResolveDictionary = <TIn, TOut>($: T.Dictionary<TIn>, $c: {
                 'map': ($: TIn, $l: {
                     'all siblings': pt.Lookup<T.AnySibling<TOut>>
