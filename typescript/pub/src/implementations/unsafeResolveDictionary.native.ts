@@ -9,7 +9,7 @@ export const $$: A.unsafeResolveDictionary = () => {
     return <TIn, TOut>(
         $: g_this.T.Dictionary<TIn>,
         $c: {
-            'map': ($: TIn, $l: {
+            'map': ($: g_this.T.KeyValuePair<TIn>, $l: {
                 'all siblings': pt.Lookup<g_this.T.AnySibling<TOut>>
                 'non circular siblings': pt.Lookup<TOut>
             }) => TOut,
@@ -21,7 +21,10 @@ export const $$: A.unsafeResolveDictionary = () => {
 
         function processEntry($: TIn, keyOfEntryBeingProcessed: string) {
             processing[keyOfEntryBeingProcessed] = null
-            const entry = $c.map($, {
+            const entry = $c.map({
+                'key': keyOfEntryBeingProcessed,
+                'value': $,
+            }, {
                 'all siblings': {
                     __unsafeGetEntry(key) {
                         return () => {

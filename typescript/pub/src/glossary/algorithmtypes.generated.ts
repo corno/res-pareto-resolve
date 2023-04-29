@@ -39,7 +39,7 @@ export namespace SYNC {
         
         export namespace F {
             export type UnsafeResolveDictionary = <TIn, TOut>($: T.Dictionary<TIn>, $c: {
-                'map': ($: TIn, $l: {
+                'map': ($: T.KeyValuePair<TIn>, $l: {
                     'all siblings': pt.Lookup<T.AnySibling<TOut>>
                     'non circular siblings': pt.Lookup<TOut>
                 }) => TOut,
