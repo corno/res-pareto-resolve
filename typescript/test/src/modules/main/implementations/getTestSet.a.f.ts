@@ -46,7 +46,7 @@ export const $$: A.getTestSet = ($) => {
             },
         })($, {
             'map': ($, $l) => {
-                $.__forEach(($) => {
+                $.value.__forEach(($) => {
                     const y = $l['non circular siblings'].__unsafeGetEntry($)
                 })
             }

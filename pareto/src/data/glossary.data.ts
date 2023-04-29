@@ -76,7 +76,7 @@ export const $: g_glossary.T.Glossary<pd.SourceLocation> = {
                 typeReference("Dictionary", { "Type": typeParameter("Out") }),
                 data(typeReference("Dictionary", { "Type": typeParameter("In") })),
                 {
-                    "map": scallback(typeParameter("Out"), typeParameter("In"), {
+                    "map": scallback(typeParameter("Out"), typeReference("KeyValuePair", {"Type": typeParameter("In")}), {
                         "non circular siblings": typeParameter("Out"),
                         "all siblings": typeReference("AnySibling", { "Type": typeParameter("Out")}),
                     })
