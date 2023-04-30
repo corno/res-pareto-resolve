@@ -90,7 +90,6 @@ export const $$: A.safeResolveDictionary = ($se) => {
 
         $.__forEach(() => false, ($, key) => {
             try {
-                console.log("ENTRY", key)
                 if (statusDictionary[key] === undefined) {
                     processEntry($, key)
                 }
