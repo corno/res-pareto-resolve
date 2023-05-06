@@ -35,10 +35,13 @@ export const $$: A.safeResolveDictionary = ($se) => {
                 'all siblings': {
                     __unsafeGetEntry(key) {
                         return () => {
+                            console.error("IMPLEMENT RESOLVE CIRCULAR  LOOKUP")
                             return pi.panic("IMPLEMENT RESOLVE CIRCULAR LOOKUP")
                         }
                     },
                     __getEntry(key, exists, nonExists) {
+                        console.error("IMPLEMENT RESOLVE CIRCULAR  LOOKUP")
+
                         return pi.panic("IMPLEMENT RESOLVE CIRCULAR LOOKUP")
                     },
 
@@ -79,7 +82,42 @@ export const $$: A.safeResolveDictionary = ($se) => {
                         }
                     },
                     __getEntry(key, exists, nonExists) {
-                        return pi.panic("IMPLEMENT RESOLVE NON CIRCULAR  LOOKUP")
+                        const status = statusDictionary[key]
+                        if (status === undefined) {
+                            return source.__getEntry(
+                                key,
+                                ($) => exists(processEntry($, key)),
+                                () => {
+                                    $se.onError(`no such entry'${key}'`)
+                                    nonExists()
+                                    throw new ResolveError("")
+                                }
+                            )
+                        } else {
+                            return pi.cc(status, (s) => {
+                                switch (s[0]) {
+                                    case 'failed':
+                                        return pi.ss(s, (s) => {
+                                            //nothing to report
+                                            nonExists()
+                                            throw new ResolveError("")
+                                        })
+                                    case 'processing':
+                                        if (key === keyOfEntryBeingProcessed) {
+                                            $se.onError(`'${key}' is referencing itself`)
+                                        } else {
+                                            $se.onError(`entries '${key}' and '${keyOfEntryBeingProcessed}' are referencing each other`)
+                                        }
+                                        statusDictionary[keyOfEntryBeingProcessed] = ['failed', null]
+                                        nonExists()
+
+                                        throw new ResolveError("")
+                                    case 'success':
+                                        return exists(s[1])
+                                    default: return pi.au(s[0])
+                                }
+                            })
+                        }
                     },
                 },
             })
