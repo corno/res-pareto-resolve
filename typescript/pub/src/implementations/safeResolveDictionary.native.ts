@@ -17,6 +17,11 @@ export const $$: A.safeResolveDictionary = ($se) => {
             }) => TOut,
         }
     ) => {
+        const subscribed: {
+            [key: string]: {
+                entry: TOut | null
+            }
+        } = {}
         const source = $
         const finished: { [key: string]: TOut } = {}
         const statusDictionary: {
@@ -35,14 +40,22 @@ export const $$: A.safeResolveDictionary = ($se) => {
                 'all siblings': {
                     __unsafeGetEntry(key) {
                         return () => {
+
                             console.error("IMPLEMENT RESOLVE CIRCULAR  LOOKUP")
                             return pi.panic("IMPLEMENT RESOLVE CIRCULAR LOOKUP")
                         }
                     },
                     __getEntry(key, exists, nonExists) {
-                        console.error("IMPLEMENT RESOLVE CIRCULAR  LOOKUP")
-
-                        return pi.panic("IMPLEMENT RESOLVE CIRCULAR LOOKUP")
+                        if (subscribed[key] === undefined) {
+                            subscribed[key] = { 'entry': null }
+                        }
+                        const subscr = subscribed[key]
+                        return exists(() => {
+                            if (subscr.entry === null) {
+                                pi.panic(`entry not set: ${key}`)
+                            }
+                            return subscr.entry
+                        })
                     },
 
                 },
@@ -54,7 +67,7 @@ export const $$: A.safeResolveDictionary = ($se) => {
                                 key,
                                 ($) => processEntry($, key),
                                 () => {
-                                    $se.onError(`no such entry'${key}'`)
+                                    $se.onError(`no such entry: '${key}'`)
                                     throw new ResolveError("")
                                 }
                             )
@@ -70,7 +83,13 @@ export const $$: A.safeResolveDictionary = ($se) => {
                                         if (key === keyOfEntryBeingProcessed) {
                                             $se.onError(`'${key}' is referencing itself`)
                                         } else {
-                                            $se.onError(`entries '${key}' and '${keyOfEntryBeingProcessed}' are referencing each other`)
+                                            const keys: string[] = []
+                                            Object.keys(statusDictionary).forEach((key) => {
+                                                if (statusDictionary[key][0] === 'processing') {
+                                                    keys.push(key)
+                                                }
+                                            })
+                                            $se.onError(`the following entries are referencing each other: ${keys.join(", ")}`)
                                         }
                                         statusDictionary[keyOfEntryBeingProcessed] = ['failed', null]
                                         throw new ResolveError("")
@@ -88,7 +107,7 @@ export const $$: A.safeResolveDictionary = ($se) => {
                                 key,
                                 ($) => exists(processEntry($, key)),
                                 () => {
-                                    $se.onError(`no such entry'${key}'`)
+                                    $se.onError(`no such entry: '${key}'`)
                                     nonExists()
                                     throw new ResolveError("")
                                 }
@@ -106,7 +125,13 @@ export const $$: A.safeResolveDictionary = ($se) => {
                                         if (key === keyOfEntryBeingProcessed) {
                                             $se.onError(`'${key}' is referencing itself`)
                                         } else {
-                                            $se.onError(`entries '${key}' and '${keyOfEntryBeingProcessed}' are referencing each other`)
+                                            const keys: string[] = []
+                                            Object.keys(statusDictionary).forEach((key) => {
+                                                if (statusDictionary[key][0] === 'processing') {
+                                                    keys.push(key)
+                                                }
+                                            })
+                                            $se.onError(`the following entries are referencing each other: ${keys.join(", ")}`)
                                         }
                                         statusDictionary[keyOfEntryBeingProcessed] = ['failed', null]
                                         nonExists()
@@ -132,8 +157,18 @@ export const $$: A.safeResolveDictionary = ($se) => {
                     processEntry($, key)
                 }
             } catch (e) {
-                //error should have been reported
+                if (e instanceof ResolveError) {
+                    //error should have been reported
+                } else {
+                    throw e
+                }
             }
+        })
+        Object.keys(subscribed).forEach(key => {
+            if (finished[key] === undefined) {
+                pi.panic(`Entry does not exist: ${key}`)
+            }
+            subscribed[key].entry = finished[key]
         })
         return pi.wrapRawDictionary(finished)
     }
